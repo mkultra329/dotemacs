@@ -143,13 +143,12 @@ loaded, if existing.
 
 I load =~/.emacs.d/.secret.el= to keep sensible things out of version control.
 For instance, you could set your identity by customizing both =user-full-name=
-and =user-mail-address=. This is also where you want your API tokens to live.
+and =user-mail-address=. This is also where you want your API tokens to be.
 
 #+BEGIN_SRC emacs-lisp
-(defvar me/erc-nick               nil        "The ERC nick to use.")
-(defvar me/erc-password           nil        "The ERC password to use.")
-(defvar me/erc-port               nil        "The ERC port to use.")
-(defvar me/erc-server             nil        "The ERC server to use.")
+(defvar me/circe-channels         nil        "The default channels to join on connect.")
+(defvar me/circe-nick             nil        "The default nick to use.")
+(defvar me/circe-password         nil        "The default password to connect with.")
 (defvar me/font-family            "Courier"  "The font to use.")
 (defvar me/font-size-default      110        "The font size to use for default text.")
 (defvar me/font-size-large        1.2        "The font size to use for larger text.")
@@ -1353,48 +1352,13 @@ Group window-related commands.
 
 ** IRC
 
-- *TODO*: Display the current count of users. =(hash-table-count erc-channel-users)=
-
 #+BEGIN_SRC emacs-lisp
-(use-package erc
-  :ensure nil
-  :preface
-  (defun me/erc ()
-    "Connect to `me/erc-server' on `me/erc-port' as `me/erc-nick' with
-    `me/erc-password'."
-    (interactive)
-    (erc :server me/erc-server
-         :port me/erc-port
-         :nick me/erc-nick
-         :password me/erc-password))
-  (defun me/erc-bol-shifted ()
-    "See `erc-bol'. Support shift."
-    (interactive "^")
-    (erc-bol))
-  :bind
-  (:map erc-mode-map
-        ([remap erc-bol] . me/erc-bol-shifted)
-        ("M-<down>" . erc-next-command)
-        ("M-<up>" . erc-previous-command))
-  :hook
-  (erc-mode . (lambda () (setq-local scroll-margin 0)))
+(use-package circe
   :custom
-  (erc-autojoin-channels-alist '(("freenode.net" "#emacs")))
-  (erc-fill-function 'erc-fill-static)
-  (erc-fill-static-center 20)
-  (erc-header-line-format nil)
-  (erc-insert-timestamp-function 'erc-insert-timestamp-left)
-  (erc-lurker-hide-list '("JOIN" "PART" "QUIT"))
-  (erc-prompt (format "%19s" ">"))
-  (erc-timestamp-format nil)
-  :config
-  (erc-scrolltobottom-enable))
-#+END_SRC
-
-Highlight ERC nicks with unique colors.
-
-#+BEGIN_SRC emacs-lisp
-(use-package erc-hl-nicks)
+  (circe-network-options
+   `(("Freenode"
+      :channels ,me/circe-channels
+      :nick ,me/circe-nick))))
 #+END_SRC
 
 ** Line Numbers
